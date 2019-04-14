@@ -1,2 +1,2 @@
-# 2D-Quadcopter control using Reinforcement Learning
+# Trajectory generation and control of 2-dimensional quadcopter in cluttered environments
 
