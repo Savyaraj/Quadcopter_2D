@@ -5,6 +5,7 @@ from graphics import Visualizer
 from Integrator import Integrator
 import matplotlib.pyplot as plt
 import math
+from maps import *
 
 # init = Properties()
 # [L,M,I,g] = [init.L,init.M,init.I, init.g]
@@ -13,9 +14,6 @@ import math
 # v = Visualizer()
 # Integrator(b,10)
 
-x = np.linspace(0,10,50)
-y = 2*x
-plt.plot(x,y)
-plt.pause(10)
+map1 = free_map([-10*L,10*L],[0,0],[5*L,5*L])
 
 
