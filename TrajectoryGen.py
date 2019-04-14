@@ -3,9 +3,9 @@
 
 # input: 1] obstacle map
 #        2] current bot position and goal position
-#        2] dynamic limits for the bot
-#        3] graph resolution for time t and motion primitives du
-#        4] cost function parameters (rho)
+#        2] dynamic constraints for the bot    [v_max,a_max,u_max]
+#        3] graph resolution for time t and motion primitives du     [tau,du/(2*u_max)]
+#        4] cost function parameters [rho]
 
 # output:   
 #        1] motion primitive value and trajectory for the next time step
@@ -31,4 +31,24 @@
 import numpy as np 
 from basics import Properties
 from Bot import bot 
-from maps import obstacle_map
+from maps import *
+
+class trajectory():
+	def __init__(map,constraints,resolution,rho):
+		self.map = map
+		self.start = map.start
+		self.goal = map.goal
+		self.constraints = constraints
+		self.tau = resolution[0]
+		self.du = 2*constraints[2]*resolution[1]
+		self.rho = rho
+
+	def heuristic(start,goal):
+
+
+	def is_feasible(map,constraints):
+
+		
+	def A_star_search(graph,start,goal):
+
+
