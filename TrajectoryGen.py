@@ -25,7 +25,7 @@
 #      H(s,sg) = min C(T)
 #      minimum cost from current state to the goal with unconstrained optimization
 
-# feasibility:
+# feasibility: to be completed
 
 
 import numpy as np 
