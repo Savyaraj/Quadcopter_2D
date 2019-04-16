@@ -33,6 +33,19 @@ from basics import Properties
 from Bot import bot 
 from maps import *
 
+
+class graph():
+	def __init__(map):
+		self.map = map
+
+	def neighbors(current):           #use motion primitives to calculate neighboring nodes
+
+
+	def cost(current, next):          #cost for the trajectory with given end points
+									  #the sum of control efforts and time taken
+
+
+
 class trajectory():
 	def __init__(map,constraints,resolution,rho):
 		self.map = map
@@ -43,11 +56,12 @@ class trajectory():
 		self.du = 2*constraints[2]*resolution[1]
 		self.rho = rho
 
-	def heuristic(start,goal):
-
+	def heuristic(self,start,goal):
+		h1 = np.linalg.norm(np.array(start-goal))/self.constraints[0]
+		return h1
 
 	def is_feasible(map,constraints):
-
+		return True
 		
 	def A_star_search(graph,start,goal):
 
