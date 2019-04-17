@@ -6,28 +6,23 @@ from Integrator import Integrator
 import matplotlib.pyplot as plt
 import math
 from maps import *
-from TrajectoryGen import graph
-
-# b = bot()
-# b.set(10*L,5*L,0.5)
-# v = Visualizer()
-# Integrator(b,10)
+from TrajectoryGen import *
 
 map1 = obstacle_map([-30,30],[-20,-20],[25,10])
 map1.add_rectangle(-17,-20,20,20)
 v = Renderer(map1)
-v.draw_point(map1.start,'b',5)
-v.draw_point(map1.goal,'g',5)
-plt.pause(1)
-g = graph(map1,v,[7,10,50],[0.2,5],10000)
+# v.draw_point(map1.start,'b',5)
+# v.draw_point(map1.goal,'g',5)
+# plt.pause(1)
+g = graph(3,map1,v,[30,7,10,50],[0.2,5],10000)
 
 # list = g.neighbors(g.start)
-# print(list[0])
+# print(list[0].p)
 # print(g.cost(g.start,list[0]))
-# print(g.heuristic(g.start,g.goal))
+# print(g.heuristic(g.start,list[0]))
 
 a,b,path = g.A_star_search(g.start,g.goal)
-plt.pause(10)
+# plt.pause(10)
 
 # path.remove(None)
 # x = []
