@@ -58,6 +58,8 @@ class node():
 		p_temp = self.p
 		return tuple(p_temp.reshape(1,2*self.dim)[0])
 
+	def __lt__(self,other):
+		return True
 
 class graph():
 	def __init__(self,dim,map,render,lim,resolution,rho):
@@ -122,15 +124,16 @@ class graph():
 		h1 = np.linalg.norm(current.p[0]-goal.p[0])/self.lim[1]
 		return self.rho*h1
 
-	def ktn(self,key):
-		
-
+	def kts(self,key):
+		state = node(self.dim)
+		state.p = np.array(key).reshape(self.dim,2)
+		return state
 	def A_star_search(self,start,goal):   
 
 		start_key = start.open()
 		goal_key = goal.open()
 		frontier = PriorityQueue()
-		frontier.put(start_key, 0)
+		frontier.put(start, 0)
 		came_from = {}
 		cost_so_far = {}
 		came_from[start_key] = None
@@ -139,17 +142,17 @@ class graph():
 		
 		while not frontier.empty():
 			current = frontier.get()
-			if iter%1000 ==0:
-				self.render.draw_point(current,'r',1)	
+			if iter%500 ==0 and came_from[current.open()] != None:
+				self.render.draw_point(current.p[0],'r',1)
+				prev = came_from[current.open()]
+				self.render.draw_line(current.p[0],prev.p[0],'r')
+				theta = math.atan((current.p[0][1]-prev.p[0][1])/(current.p[0][0]-prev.p[0][0]))
+				v = np.linalg.norm(current.p[1])
+				temp = current.p[0]+[-(v/self.v_max)*math.sin(theta),(v/self.v_max)*math.cos(theta)]
+				self.render.draw_line(current.p[0],temp,'b')
 			iter=iter+1
 			print(iter)
-			if (np.linalg.norm(current.p[0]-goal.p[0])<0.1) or iter==100000:
-				path = [current.open()]
-				print(current)
-				while current in came_from:
-					current = came_from[current.open()]
-					path.append(current.open())
-				path.reverse()
+			if (np.linalg.norm(current.p[0]-goal.p[0])<1) or iter==100000:
 				break
 
 			for next in graph.neighbors(self,current):
