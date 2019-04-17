@@ -33,6 +33,7 @@ from maps import *
 import itertools
 import heapq
 import matplotlib.pyplot as plt
+from graphics import Renderer
 
 class PriorityQueue:
     def __init__(self):
@@ -48,7 +49,8 @@ class PriorityQueue:
         return heapq.heappop(self.elements)[1]
 
 class graph():
-	def __init__(self,map,lim,resolution,rho):
+	def __init__(self,map,render,lim,resolution,rho):
+		self.render = render
 		self.map = map
 		self.start = np.array((map.start,[0,0],[0,0],[0,0]))
 		self.goal = np.array((map.goal,[0,0],[0,0],[0,0]))
@@ -61,9 +63,14 @@ class graph():
 		self.du = 2*self.u_max*resolution[1]
 		self.rho = rho
 
-	def is_feasible(self,state):       #calculate exact values in closed form
+	def is_feasible(self,state):       #calculate theta 
+									   #check collision at intermediate points
+									   #closed form solutions for v_max and a_max
 
-		return ((state[2]<=self.v_max) and (state[3]<=self.v_max) and (state[4]<=self.a_max) and (state[5]<=self.a_max))	
+		dyn = ((state[2]<=self.v_max) and (state[3]<=self.v_max) and (state[4]<=self.a_max) and (state[5]<=self.a_max))	
+		collision = self.map.is_colliding(state[0],state[1])
+		#print(collision)
+		return dyn and not collision
 
 	def neighbors(self,current):       #use motion primitives to calculate neighboring nodes
 		neighbor_list = []
@@ -113,9 +120,11 @@ class graph():
 		
 		while not frontier.empty():
 			current = frontier.get()
+			if iter%1000 ==0:
+				self.render.draw_point([current[0],current[1]],'r',1)	
 			iter=iter+1
 			print(iter)
-			if (np.linalg.norm([current[0]-goal[0],current[1]-goal[1]])<0.1) or iter==10000:
+			if (np.linalg.norm([current[0]-goal[0],current[1]-goal[1]])<0.1) or iter==100000:
 				path = [current]
 				print(current)
 				while current in came_from:
@@ -131,7 +140,8 @@ class graph():
 					priority = new_cost + graph.heuristic(self,next,goal)
 					frontier.put(next,priority)
 					came_from[next] = current
-		# 			if iter%100 == 0:
+					# if iter%1000 == 0:
+						# self.render.draw_line([current[0],current[1]],[next[0],next[1]],'r')	
 		# 				plt.plot([current[0],next[0]],[current[1],next[1]],color='red', linewidth=1)
 		# 				plt.show(block=False)
 		# 				plt.pause(0.01)
