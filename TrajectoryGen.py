@@ -1,7 +1,6 @@
 #Trajectory Generation
 #Defined as      [x(t),y(t)]
-#testing 
-
+hahaha
 # input: 1] obstacle map
 #        2] current bot position and goal position
 #        2] dynamic constraints for the bot    [v_max,a_max,u_max]
