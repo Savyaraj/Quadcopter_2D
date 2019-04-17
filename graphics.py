@@ -1,28 +1,47 @@
 import numpy as np
-from basics import Properties
+import properties
 from matplotlib import pyplot as plt
 from matplotlib import axes 
+import matplotlib.patches as patches
 import math
 from decimal import Decimal
 from Bot import bot
 
-init = Properties()
-[L,M,I,g] = [init.L,init.M,init.I, init.g]
+class Renderer:
+	def __init__(self,map):
 
-class Visualizer:
+		fig,ax = plt.subplots(1)
+		# plt.grid(True)
+		l = map.map_size[1]
+		plt.axis([-l,l,-l,l])
+		plt.xlabel('$x(m)$', Fontsize = 16)
+		plt.ylabel('$y(m)$', Fontsize = 16)
+		plt.xticks(Fontsize = 16)
+		plt.yticks(Fontsize = 16)
+		plt.locator_params(nbins=10)
 
-	fig = plt.figure()
+		for R in map.obstacles["Rectangle"]:
+
+			rect = patches.Rectangle((R[0],R[1]),R[2],R[3],linewidth=1,edgecolor='k',facecolor='k')
+			ax.add_patch(rect)
+
+	def draw_line(self,p1,p2,col):
+
+		plt.plot([p1[0],p2[0]],[p1[1],p2[1]],color=col,linewidth=1)
+		plt.draw()
+		plt.pause(0.01)
+
+	def draw_point(self,p,col,size):
+		plt.plot(p[0],p[1],marker="o",color=col,markersize=size)
+		plt.draw()
+		plt.pause(0.01)
+
 	def plot(self, bot):
 		plt.clf()
 		x = bot.loc[0]
 		y = bot.loc[1]
 		theta = bot.theta
 		t = bot.t
-		plt.axis([x-L, x+L, y-L, y+L])
-		plt.xlabel('$x(m)$', Fontsize = 16)
-		plt.ylabel('$y(m)$', Fontsize = 16)
-		plt.xticks(Fontsize = 16)
-		plt.yticks(Fontsize = 16)
 		p1 = [x-(L/2)*math.cos(theta),y+(L/2)*math.sin(theta)]
 		p2 = [x+(L/2)*math.cos(theta),y-(L/2)*math.sin(theta)]
 		plt.plot([p1[0],p2[0]],[p1[1],p2[1]],color='black', linewidth=2)
