@@ -1,6 +1,6 @@
 #Trajectory Generation
 #Defined as      [x(t),y(t)]
-hahaha
+
 # input: 1] obstacle map
 #        2] current bot position and goal position
 #        2] dynamic constraints for the bot    [v_max,a_max,u_max]
@@ -48,39 +48,66 @@ class PriorityQueue:
     def get(self):
         return heapq.heappop(self.elements)[1]
 
+class node():
+	def __init__(self,dim):
+		self.dim = dim     #dimension of state space
+		self.p = np.zeros((dim,2))
+		self.control = np.zeros((1,2))
+
+	def open(self):
+		p_temp = self.p
+		return tuple(p_temp.reshape(1,2*self.dim)[0])
+
+
 class graph():
-	def __init__(self,map,render,lim,resolution,rho):
+	def __init__(self,dim,map,render,lim,resolution,rho):
 		self.render = render
 		self.map = map
-		self.start = np.array((map.start,[0,0],[0,0],[0,0]))
-		self.goal = np.array((map.goal,[0,0],[0,0],[0,0]))
+		self.dim = dim
+		self.start = node(dim)
+		self.start.p[0] = map.start
+		self.goal = node(dim)
+		self.goal.p[0] = map.goal
 		self.lim = lim
-		self.v_max = lim[0]
-		self.a_max = lim[1]
-		self.u_max = lim[2]
+		self.x_max = lim[0]
+		self.v_max = lim[1]
+		self.a_max = lim[2]
+		self.u_max = lim[3]
 		self.tau = resolution[0]
-		self.u_range = np.linspace(-self.u_max,self.u_max,resolution[1])
-		self.du = 2*self.u_max*resolution[1]
+		self.cont_range = np.linspace(-lim[dim],lim[dim],resolution[1])
+		self.du = 2*lim[dim]*resolution[1]
 		self.rho = rho
 
 	def is_feasible(self,state):       #calculate theta 
 									   #check collision at intermediate points
 									   #closed form solutions for v_max and a_max
+		dyn_feasible = True
+		for i in range(state.dim):
+			for j in range(2):
+				if abs(state.p[i][j])>=self.lim[i]: 
+					dyn_feasible = dyn_feasible and False
 
-		dyn = ((state[2]<=self.v_max) and (state[3]<=self.v_max) and (state[4]<=self.a_max) and (state[5]<=self.a_max))	
-		collision = self.map.is_colliding(state[0],state[1])
-		#print(collision)
-		return dyn and not collision
+		collision = self.map.is_colliding(state.p[0])
+		return dyn_feasible and not collision
 
 	def neighbors(self,current):       #use motion primitives to calculate neighboring nodes
 		neighbor_list = []
-		current = (np.array(current)).reshape(4,2)
-		for ux,uy in itertools.product(self.u_range,self.u_range):
+		for ux,uy in itertools.product(self.cont_range,self.cont_range):
 			u = np.array(([ux,uy]))
-			a = current[2]+u*self.tau
-			v = current[1]+current[2]*self.tau+(self.tau**2/2)*u
-			s = current[0]+current[1]*self.tau+current[2]*self.tau**2/2+u*self.tau**3/6
-			next = tuple((np.array([s,v,a,u])).reshape(1,8)[0])
+			next = node(self.dim)
+			next.control = u
+			if self.dim == 1:
+				next.p[0] = current.p[0]+self.tau*u
+
+			if self.dim == 2:
+				next.p[1] = current.p[1]+self.tau*u
+				next.p[0] = current.p[0] + current.p[1]*self.tau + (u*self.tau**2)/2
+
+			if self.dim == 3:
+				next.p[2] = current.p[2]+u*self.tau
+				next.p[1] = current.p[1]+current.p[2]*self.tau+u*(self.tau**2)/2
+				next.p[0] = current.p[0]+current.p[1]*self.tau+(current.p[2]*self.tau**2)/2+(u*self.tau**3)/6
+
 			if self.is_feasible(next):
 				neighbor_list.append(next)
 
@@ -89,63 +116,50 @@ class graph():
 
 	def cost(self,current,next):          #cost for the trajectory with given end points
 									      #the sum of control efforts and time taken
-		return (np.linalg.norm([next[6],next[7]])**2+self.rho)*self.tau							  
+		return (np.linalg.norm(next.control)**2+self.rho)*self.tau							  
 
 	def heuristic(self,current,goal):     #use QMVT heuristic
-		h1 = np.linalg.norm([current[0]-goal[0],current[1]-goal[1]])/self.lim[0]
+		h1 = np.linalg.norm(current.p[0]-goal.p[0])/self.lim[1]
 		return self.rho*h1
+
+	def ktn(self,key):
+		
 
 	def A_star_search(self,start,goal):   
 
-		start = tuple(start.reshape(1,8)[0])
-		goal = tuple(goal.reshape(1,8)[0])
+		start_key = start.open()
+		goal_key = goal.open()
 		frontier = PriorityQueue()
-		frontier.put(start, 0)
+		frontier.put(start_key, 0)
 		came_from = {}
 		cost_so_far = {}
-		came_from[start] = None
-		cost_so_far[start] = 0
+		came_from[start_key] = None
+		cost_so_far[start_key] = 0
 		iter = 0
-
-		# fig = plt.figure()
-		# plt.clf()
-		# l = self.map.map_size[1]
-		# plt.axis([-l,l,-l,l])
-		# plt.xlabel('$x(m)$', Fontsize = 16)
-		# plt.ylabel('$y(m)$', Fontsize = 16)
-		# plt.xticks(Fontsize = 16)
-		# plt.yticks(Fontsize = 16)
-		# plt.plot(start[0],start[1], marker="o",  markersize=5)
-		# plt.plot(goal[0],goal[1], marker="o",  markersize=5)
 		
 		while not frontier.empty():
 			current = frontier.get()
 			if iter%1000 ==0:
-				self.render.draw_point([current[0],current[1]],'r',1)	
+				self.render.draw_point(current,'r',1)	
 			iter=iter+1
 			print(iter)
-			if (np.linalg.norm([current[0]-goal[0],current[1]-goal[1]])<0.1) or iter==100000:
-				path = [current]
+			if (np.linalg.norm(current.p[0]-goal.p[0])<0.1) or iter==100000:
+				path = [current.open()]
 				print(current)
 				while current in came_from:
-					current = came_from[current]
-					path.append(current)
+					current = came_from[current.open()]
+					path.append(current.open())
 				path.reverse()
 				break
 
 			for next in graph.neighbors(self,current):
-				new_cost = cost_so_far[current] + graph.cost(self,current,next)
-				if next not in cost_so_far or new_cost < cost_so_far[next]:
-					cost_so_far[next] = new_cost
+				new_cost = cost_so_far[current.open()] + graph.cost(self,current,next)
+				if next.open() not in cost_so_far or new_cost < cost_so_far[next.open()]:
+					cost_so_far[next.open()] = new_cost
 					priority = new_cost + graph.heuristic(self,next,goal)
+					print(iter)
 					frontier.put(next,priority)
-					came_from[next] = current
-					# if iter%1000 == 0:
-						# self.render.draw_line([current[0],current[1]],[next[0],next[1]],'r')	
-		# 				plt.plot([current[0],next[0]],[current[1],next[1]],color='red', linewidth=1)
-		# 				plt.show(block=False)
-		# 				plt.pause(0.01)
-		# plt.savefig('Test.png')
-		# plt.pause(10)
+					came_from[next.open()] = current
+				
 		return came_from, cost_so_far, path
 
