@@ -1,5 +1,6 @@
 #Trajectory Generation
-#Defined as      [x(t),y(t)] 
+#Defined as      [x(t),y(t)]
+#testing 
 
 # input: 1] obstacle map
 #        2] current bot position and goal position
