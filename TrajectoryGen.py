@@ -128,6 +128,7 @@ class graph():
 		state = node(self.dim)
 		state.p = np.array(key).reshape(self.dim,2)
 		return state
+
 	def A_star_search(self,start,goal):   
 
 		start_key = start.open()
@@ -152,7 +153,7 @@ class graph():
 				self.render.draw_line(current.p[0],temp,'b')
 			iter=iter+1
 			print(iter)
-			if (np.linalg.norm(current.p[0]-goal.p[0])<1) or iter==100000:
+			if (np.linalg.norm(current.p[0]-goal.p[0])<1) or iter==10000:
 				break
 
 			for next in graph.neighbors(self,current):
@@ -164,5 +165,5 @@ class graph():
 					frontier.put(next,priority)
 					came_from[next.open()] = current
 				
-		return came_from, cost_so_far, path
+		return came_from, cost_so_far
 
