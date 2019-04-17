@@ -4,7 +4,7 @@ from scipy import integrate
 from basics import Properties
 from Int_func import Int_func
 import matplotlib.pyplot as plt 
-from graphics import Visualizer
+from graphics import Renderer
 from Bot import bot
 
 init = Properties()
