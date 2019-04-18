@@ -163,14 +163,14 @@ class graph():
 				prev = came_from[current.open()]
 				self.render.draw_line(current.p[0],prev.p[0],'r')
 				theta = math.atan((current.p[0][1]-prev.p[0][1])/(current.p[0][0]-prev.p[0][0]))
-				v = np.linalg.norm(current.p[1])
-				temp = current.p[0]+[-(v/self.v_max)*math.sin(theta),(v/self.v_max)*math.cos(theta)]
-				self.render.draw_line(current.p[0],temp,'b')
+				# v = np.linalg.norm(current.p[1])
+				# temp = current.p[0]+[-(v/self.v_max)*math.sin(theta),(v/self.v_max)*math.cos(theta)]
+				# self.render.draw_line(current.p[0],temp,'b')
 			iter=iter+1
 			print(iter)
-			if (np.linalg.norm(current.p[0]-goal.p[0])<0.1) or iter==100000:
-				if (np.linalg.norm(current.p[1]-goal.p[1])<1):
-					break
+			if (np.linalg.norm(current.p[0]-goal.p[0])<0.5) or iter==100000:
+				# if (np.linalg.norm(current.p[1]-goal.p[1])<2):
+				break
 
 			for next in graph.neighbors(self,current):
 				new_cost = cost_so_far[current.open()] + graph.cost(self,current,next)
