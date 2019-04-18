@@ -79,8 +79,28 @@ class graph():
 		self.cont_range = np.linspace(-lim[dim],lim[dim],resolution[1])
 		self.du = 2*lim[dim]*resolution[1]
 		self.rho = rho
+		self.explored = []
+		self.camefrom = {}
+		self.costsofar = {}
+		self.last = node(self.dim)
 
-	def is_feasible(self,state):       #calculate theta 
+	def update(self,current,t,u):
+		next = node(self.dim)
+		next.control = u
+		if self.dim == 1:
+			next.p[0] = current.p[0]+t*u
+
+		if self.dim == 2:
+			next.p[1] = current.p[1]+t*u
+			next.p[0] = current.p[0] + current.p[1]*t + (u*t**2)/2
+
+		if self.dim == 3:
+			next.p[2] = current.p[2]+u*t
+			next.p[1] = current.p[1]+current.p[2]*t+u*(t**2)/2
+			next.p[0] = current.p[0]+current.p[1]*t+(current.p[2]*t**2)/2+(u*t**3)/6
+		return next
+
+	def is_feasible(self,current,state):       #calculate theta 
 									   #check collision at intermediate points
 									   #closed form solutions for v_max and a_max
 		dyn_feasible = True
@@ -89,28 +109,22 @@ class graph():
 				if abs(state.p[i][j])>=self.lim[i]: 
 					dyn_feasible = dyn_feasible and False
 
-		collision = self.map.is_colliding(state.p[0])
+		I = int(self.tau*self.v_max/0.1)
+		temp = current
+		collision = False
+		for i in range(I):
+			t = i*self.tau/I
+			temp = self.update(temp,t,state.control)
+			collision = collision or self.map.is_colliding(temp.p[0])
+
 		return dyn_feasible and not collision
 
 	def neighbors(self,current):       #use motion primitives to calculate neighboring nodes
 		neighbor_list = []
 		for ux,uy in itertools.product(self.cont_range,self.cont_range):
 			u = np.array(([ux,uy]))
-			next = node(self.dim)
-			next.control = u
-			if self.dim == 1:
-				next.p[0] = current.p[0]+self.tau*u
-
-			if self.dim == 2:
-				next.p[1] = current.p[1]+self.tau*u
-				next.p[0] = current.p[0] + current.p[1]*self.tau + (u*self.tau**2)/2
-
-			if self.dim == 3:
-				next.p[2] = current.p[2]+u*self.tau
-				next.p[1] = current.p[1]+current.p[2]*self.tau+u*(self.tau**2)/2
-				next.p[0] = current.p[0]+current.p[1]*self.tau+(current.p[2]*self.tau**2)/2+(u*self.tau**3)/6
-
-			if self.is_feasible(next):
+			next = self.update(current,self.tau,u)
+			if self.is_feasible(current,next):
 				neighbor_list.append(next)
 
 		return neighbor_list
@@ -143,7 +157,8 @@ class graph():
 		
 		while not frontier.empty():
 			current = frontier.get()
-			if iter%500 ==0 and came_from[current.open()] != None:
+			self.explored = np.append(self.explored,current)
+			if iter%100 ==0 and came_from[current.open()] != None:
 				self.render.draw_point(current.p[0],'r',1)
 				prev = came_from[current.open()]
 				self.render.draw_line(current.p[0],prev.p[0],'r')
@@ -153,7 +168,7 @@ class graph():
 				self.render.draw_line(current.p[0],temp,'b')
 			iter=iter+1
 			print(iter)
-			if (np.linalg.norm(current.p[0]-goal.p[0])<1) or iter==10000:
+			if (np.linalg.norm(current.p[0]-goal.p[0])<0.1) or iter==100000:
 				break
 
 			for next in graph.neighbors(self,current):
@@ -164,6 +179,41 @@ class graph():
 					print(iter)
 					frontier.put(next,priority)
 					came_from[next.open()] = current
-				
-		return came_from, cost_so_far
+		self.camefrom = came_from
+		self.costsofar = cost_so_far
+		self.last = current
+		return came_from, cost_so_far, current
 
+	def write_data(self):
+		t = open('came_from.txt','w+')
+		t.write(str(self.dim)+'\n')
+		current = self.last
+		while current != None:
+			for x in current.open():
+				t.write(str(x)+'\t')
+			t.write("\n")
+			current = self.camefrom[current.open()]
+		t.write('None')
+		t.close()
+
+		return
+    
+	def read_data(self,path):
+		data = open(path,'r')
+		self.dim = int(data.readline())
+		r = data.readline().split('\t')[:2*self.dim]
+		for i in range(len(r)):
+			r[i] = float(r[i])
+		self.last = self.kts(r)
+		current = self.last
+		while True:
+			r  = data.readline()
+			if r == 'None':
+				self.camefrom[current.open()] = None
+				break
+			r = r.split('\t')[:2*self.dim]
+			for i in range(len(r)):
+				r[i] = float(r[i])
+			self.camefrom[current.open()] = self.kts(r)
+			current = self.camefrom[current.open()]
+		return
