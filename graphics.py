@@ -36,6 +36,9 @@ class Renderer:
 		plt.draw()
 		plt.pause(0.01)
 
+	def close(self):
+		plt.close()
+
 	def plot(self, bot):
 		plt.clf()
 		x = bot.loc[0]
