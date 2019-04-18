@@ -169,7 +169,8 @@ class graph():
 			iter=iter+1
 			print(iter)
 			if (np.linalg.norm(current.p[0]-goal.p[0])<0.1) or iter==100000:
-				break
+				if (np.linalg.norm(current.p[1]-goal.p[1])<1):
+					break
 
 			for next in graph.neighbors(self,current):
 				new_cost = cost_so_far[current.open()] + graph.cost(self,current,next)
