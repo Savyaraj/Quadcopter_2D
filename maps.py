@@ -15,7 +15,7 @@ class obstacle_map():
 		self.map_size = np.array(size)
 		self.start = np.array(start)
 		self.goal = np.array(goal)
-		self.c = 0.2
+		self.c = 0.5
 		self.obstacles = {
 			"Rectangle":[],
 			"Circle":[]
@@ -31,22 +31,14 @@ class obstacle_map():
 
 	def is_colliding(self,p):
 
+		size = self.map_size[1]
+		if abs(p[0])>size-self.c or abs(p[1])>size-self.c:
+			print(p,size)
+			return True
+
 		for R in self.obstacles['Rectangle']:
 			if((R[0]-self.c<=p[0] and (p[0]<=R[0]+R[2]+self.c)) and (R[1]-self.c<=p[1] and (p[1]<=R[1]+R[3]+self.c))):
 				return True
 
-			if():
-				return True	
-
 		return False
-	# def is_colliding(self,x,y,L,theta):
 
-	# 	r = [x+(L/2)*math.cos(theta), y-(L/2)*math.sin(theta)]
-	# 	l = [x-(L/2)*math.cos(theta), y+(L/2)*math.sin(theta)]
-
-	# 	for R in self.obstacles['Rectangle']:
-	# 		if(((R[0]-R[2]/2)<=r[0] and (r[0]<=R[0]+R[2]/2)) or ((R[0]-R[2]/2)<=l[0] and (l[0]<=R[0]+R[2]/2))):
-	# 			return True
-
-	# 		if(((R[1]-R[3]/2)<=r[1] and (r[1]<=R[1]+R[3]/2)) or ((R[1]-R[3]/2)<=l[1] and (l[1]<=R[1]+R[3]/2))):
-	# 			return True	
