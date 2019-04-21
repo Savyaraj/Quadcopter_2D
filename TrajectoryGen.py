@@ -157,7 +157,7 @@ class graph():
 			# print(inter_state.p[0])
 			
 			# self.render.draw_point(inter_state.p[0],'b',5)
-			H = self.H1(current,inter_state) + 5*self.rho*(len(self.prev_traj)*self.tau-current.t)
+			H = self.H1(current,inter_state) + 4*self.rho*(len(self.prev_traj)*self.tau-current.t)
 			return H
 		else:
 			return self.H1(current,goal)
@@ -165,7 +165,7 @@ class graph():
 	def H1(self,current,goal):
 		H = np.linalg.norm(current.p[0]-goal.p[0])/self.lim[1]
 		if self.dim == 3:
-			H = H + np.linalg.norm(current.p[1]-goal.p[1])/self.lim[2]
+			H = H + 8*np.linalg.norm(current.p[1]-goal.p[1])/self.lim[2]
 		return self.rho*H
 			
 	def kts(self,key,dim):       #convert from dictionary key to state format
