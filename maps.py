@@ -33,7 +33,6 @@ class obstacle_map():
 
 		size = self.map_size[1]
 		if abs(p[0])>size-self.c or abs(p[1])>size-self.c:
-			print(p,size)
 			return True
 
 		for R in self.obstacles['Rectangle']:
