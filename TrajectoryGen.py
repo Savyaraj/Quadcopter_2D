@@ -188,11 +188,11 @@ class graph():
 		while not frontier.empty():
 			current = frontier.get()
 			self.explored = np.append(self.explored,current)
-			if iter%100 ==0 and came_from[current.open()] != None:
-				self.render.draw_point(current.p[0],'r',1)
+			if iter%1 ==0 and self.dim ==3 and came_from[current.open()] != None:
+				self.render.draw_point(current.p[0],'r',5)
 				prev = came_from[current.open()]
-				self.render.draw_line(current.p[0],prev.p[0],'r')
-				theta = math.atan((current.p[0][1]-prev.p[0][1])/(current.p[0][0]-prev.p[0][0]))
+				# self.render.draw_line(current.p[0],prev.p[0],'r')
+				# theta = math.atan((current.p[0][1]-prev.p[0][1])/(current.p[0][0]-prev.p[0][0]))
 				# v = np.linalg.norm(current.p[1])
 				# temp = current.p[0]+[-(v/self.v_max)*math.sin(theta),(v/self.v_max)*math.cos(theta)]
 				# self.render.draw_line(current.p[0],temp,'b')
