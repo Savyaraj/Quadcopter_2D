@@ -165,7 +165,7 @@ class graph():
 	def H1(self,current,goal):
 		H = np.linalg.norm(current.p[0]-goal.p[0])/self.lim[1]
 		if self.dim == 3:
-			H = H + 8*np.linalg.norm(current.p[1]-goal.p[1])/self.lim[2]
+			H = H + 15*np.linalg.norm(current.p[1]-goal.p[1])/self.lim[2]
 		return self.rho*H
 			
 	def kts(self,key,dim):       #convert from dictionary key to state format
@@ -173,7 +173,7 @@ class graph():
 		state.p = np.array(key).reshape(dim,2)
 		return state
 
-	def A_star_search(self,start,goal,iterations):   
+	def A_star_search(self,start,goal,iterations,accuracy):   
 
 		start_key = start.open()
 		goal_key = goal.open()
@@ -198,7 +198,7 @@ class graph():
 				# self.render.draw_line(current.p[0],temp,'b')
 			iter=iter+1
 			print(iter)
-			if (np.linalg.norm(current.p[0]-goal.p[0])<0.5) or iter == iterations:
+			if (np.linalg.norm(current.p[0]-goal.p[0])<accuracy) or iter == iterations:
 				# if (np.linalg.norm(current.p[1]-goal.p[1])<2):
 				break
 
@@ -256,9 +256,20 @@ class graph():
 		return self.Traj
 
 	def plot_trajectory(self):
+
+		if self.dim == 1:
+			color = 'r'
+		elif self.dim == 2:
+			color = 'b'
+		elif self.dim == 3:
+			color = 'g'
+
+		legend = [0.8*self.lim[0], (0.45+0.15*self.dim)*self.lim[0]]
+		plt.text(legend[0],legend[1], r'$\phi =$'+str(self.dim) , Fontsize = 10)
+		self.render.draw_line([legend[0]-0.1,legend[1]],[legend[0]-0.8,legend[1]],color)
 		for i in range(len(self.Traj)-1):
-			self.render.draw_line(self.Traj[i].p[0],self.Traj[i+1].p[0],'r')
-			self.render.draw_point(self.Traj[i].p[0],'b',5)
+			self.render.draw_line(self.Traj[i].p[0],self.Traj[i+1].p[0],color)
+			self.render.draw_point(self.Traj[i].p[0],'c',2)
 			plt.pause(0.01)
 		plt.pause(5)
 		return
