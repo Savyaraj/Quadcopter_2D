@@ -20,8 +20,8 @@ class Renderer:
 		plt.xticks(Fontsize = 16)
 		plt.yticks(Fontsize = 16)
 		plt.locator_params(nbins=10)
-		self.draw_point(self.map.start,'b',5)
-		self.draw_point(self.map.goal,'g',5)
+		self.draw_point(self.map.start,'b',40)
+		self.draw_point(self.map.goal,'g',40)
 
 		for R in map.obstacles["Rectangle"]:
 
@@ -35,7 +35,7 @@ class Renderer:
 		plt.pause(0.01)
 
 	def draw_point(self,p,col,size):
-		plt.plot(p[0],p[1],marker="o",color=col,markersize=size)
+		plt.plot(p[0],p[1],marker="o",color=col,markersize=size,markeredgewidth=0.0,alpha = 0.2)
 		plt.draw()
 		# plt.pause(0.01)
 
