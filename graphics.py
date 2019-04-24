@@ -35,7 +35,8 @@ class Renderer:
 		plt.pause(0.01)
 
 	def draw_point(self,p,col,size):
-		plt.plot(p[0],p[1],marker="o",color=col,markersize=size,markeredgewidth=0.0,alpha = 0.2)
+		plt.plot(p[0],p[1],marker="o",color=col,markersize=size,markeredgewidth=0.0,alpha = 0.3)
+		plt.pause(0.01)
 		plt.draw()
 		# plt.pause(0.01)
 
