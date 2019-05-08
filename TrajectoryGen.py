@@ -54,6 +54,7 @@ class node():
 		self.p = np.zeros((dim,2))
 		self.control = np.zeros((1,2))
 		self.t = 0
+		self.theta = 0
 
 	def open(self):
 		p_temp = self.p
@@ -260,5 +261,5 @@ class graph():
 			self.render.draw_line(self.Traj[i].p[0],self.Traj[i+1].p[0],'r')
 			self.render.draw_point(self.Traj[i].p[0],'b',5)
 			plt.pause(0.01)
-		plt.pause(5)
+		plt.pause(1)
 		return
