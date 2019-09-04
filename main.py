@@ -9,7 +9,8 @@ from maps import *
 from TrajectoryGen import *
 
 map1 = obstacle_map([-8,8],[-7,-7],[-5,6])
-map1.add_rectangle(-8,-3,10,2)
+map1.add_rectangle(-8,-3,5,2)
+map1.add_rectangle(2,2,4,3)
 # map1.add_rectangle(1,2,2,2)
 v = Renderer(map1)
 dim = 1
@@ -48,4 +49,3 @@ v = Renderer(map1)
 g.plot_trajectory()
 g1.plot_trajectory()
 g2.plot_trajectory()
-
